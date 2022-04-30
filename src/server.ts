@@ -1,5 +1,5 @@
 import Fastify, { FastifyInstance } from "fastify";
-import { userBlockChainRoutes } from "./routes";
+import { routes } from "./routes";
 
 export const server: FastifyInstance = Fastify({ logger: true });
-userBlockChainRoutes.forEach((route) => server.route(route));
+routes.forEach((route) => server.route(route));

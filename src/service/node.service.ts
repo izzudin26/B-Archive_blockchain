@@ -10,4 +10,4 @@ export const getNodes = async (): Promise<INode[]> => await Node.find().exec();
 
 export const editNode = async (node: INode) => Node.findOne({_id: node._id}, {uri: node.uri})
 
-export const deleteNode = async (uri: string) => Node.deleteOne({uri})
+export const deleteNode = async (_id: Types.ObjectId) => Node.deleteOne({_id})
