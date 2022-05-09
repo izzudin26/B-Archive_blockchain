@@ -8,7 +8,7 @@ const start = async () => {
     const dbName = "b-archive";
     await connect(`mongodb://${mongoUrl}:${mongoPort}/${dbName}`);
     const port = process.env.PORT || 3000;
-    await server.listen(port);
+    await server.listen(port, '0.0.0.0');
     server.log.info("Connected to Database");
     server.log.info(`Server Running on PORT ${port}`);
   } catch (error) {

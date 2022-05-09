@@ -34,3 +34,4 @@ export const getNodes = async (req: any, res: any) => {
     if (error instanceof Error) throw HttpError(500, error.message);
   }
 };
+

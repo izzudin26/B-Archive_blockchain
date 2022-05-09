@@ -1,6 +1,10 @@
 import { UserBlockChain, IUserBlockchain } from "../model/userBlockchain";
+import * as nodeService from "./node.service";
 import { IBlockChain } from "../model/blockchain";
+import { INode } from "../model/node";
 import crypto from "crypto";
+import axios from "axios";
+import { server } from "../server";
 
 export const createUserBlockchain = async (
   userId: String
@@ -17,8 +21,8 @@ export const getAllTransactions = async (
 };
 
 export const getUser = async (userId: string) => {
-  return await UserBlockChain.findOne({userId}).select("userId").exec()
-}
+  return await UserBlockChain.findOne({ userId }).select("userId").exec();
+};
 
 export const getLastBlockUser = async (
   userId: String
@@ -30,10 +34,17 @@ export const getLastBlockUser = async (
   return userData?.transactionsBlock.slice(-1)[0];
 };
 
-export const getDetailBlock = async (userId: Readonly<String>, hashBlock: Readonly<String>): Promise<IBlockChain | null> => {
-  const userTransactions: IUserBlockchain = await UserBlockChain.findOne({userId: userId}).exec()
-  return userTransactions.transactionsBlock.filter(b => b.hash == hashBlock)[0]
-}
+export const getDetailBlock = async (
+  userId: Readonly<String>,
+  hashBlock: Readonly<String>
+): Promise<IBlockChain | null> => {
+  const userTransactions: IUserBlockchain = await UserBlockChain.findOne({
+    userId: userId,
+  }).exec();
+  return userTransactions.transactionsBlock.filter(
+    (b) => b.hash == hashBlock
+  )[0];
+};
 
 export const createTransactions = async (userId: String, data: object) => {
   const prevBlock: IBlockChain | null | undefined = await getLastBlockUser(
@@ -68,7 +79,28 @@ export const isValid = (transactions: IBlockChain[]): boolean => {
     if (transactions[iteration].hash != transactions[iteration + 1].prevHash) {
       return false;
     }
-    iteration++
+    iteration++;
   }
   return true;
+};
+
+export const synchronize = async (userid: Readonly<String>) => {
+  const currentData: IUserBlockchain = await getAllTransactions(userid);
+  const lengthData = currentData.transactionsBlock.length;
+  const nodes: INode[] = await nodeService.getNodes();
+  nodes.forEach(async (node) => {
+    try {
+      const { data, status } = await axios.get(
+        `${node.uri}/blockchain/${userid}`
+      );
+      if (data.data.transactionsBlock.length > lengthData) {
+        await UserBlockChain.updateOne(
+          { userId: userid },
+          { transactionsBlock: data.data.transactionsBlock }
+        );
+      }
+    } catch (error) {
+      throw error;
+    }
+  });
 };

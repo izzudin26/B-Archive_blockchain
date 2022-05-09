@@ -62,3 +62,14 @@ export const getDetailTransactionUser = async (req: any, res:any): Promise<Respo
     if (error instanceof Error) throw HttpError(500, error.message);
     }
 }
+
+export const syncUser = async (req: any, res: any) => {
+    const {userid} = req.params
+    try {
+        await userBlockChainService.synchronize(userid)
+        return HttpResponse(200, "Processing Synchronize")
+    } catch (error) {
+    if (error instanceof Error) throw HttpError(500, error.message);
+        
+    }
+}

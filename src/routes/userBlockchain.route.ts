@@ -22,4 +22,9 @@ export const userBlockChainRoutes: RouteOptions[] = [
     method: "POST",
     handler: UserBlockchainController.insertTransactionsToUser,
   },
+  {
+    url: "/blockchain/:userid/synchronize",
+    method: "GET",
+    handler: UserBlockchainController.syncUser
+  }
 ];
